@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Admin Dashboard</title>
-<meta name="viewport" content="width=device-width">
+  <title>Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
-<body style="background:#111;color:#fff;padding:20px">
+<body style="background:#111;color:#fff;padding:20px;font-family:Arial">
 
 <h2>Admin Dashboard</h2>
 
@@ -21,11 +21,12 @@
 <hr>
 <div id="list"></div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+<!-- Firebase COMPAT (GitHub Pages SAFE) -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 
+<script>
 const firebaseConfig = {
   apiKey: "AIzaSyAJZ7e134Fnt3Cxe1aiDkFUg_Wv0ehpBA0",
   authDomain: "piyush-agency-b7949.firebaseapp.com",
@@ -33,55 +34,79 @@ const firebaseConfig = {
   projectId: "piyush-agency-b7949"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const auth = getAuth(app);
+firebase.initializeApp(firebaseConfig);
 
-let editId=null;
+const db = firebase.database();
+const auth = firebase.auth();
 
-onAuthStateChanged(auth,u=>{
- if(!u) location.href="login.html";
+let editId = null;
+
+/* 🔐 Protect dashboard */
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    window.location.href = "login.html";
+  }
 });
 
-window.logout=()=>signOut(auth);
-
-window.addAgent=()=>{
- if(editId){
-  update(ref(db,"agents/"+editId),{
-   name:name.value,desc:desc.value,image:image.value,
-   whatsapp:whatsapp.value,phone:phone.value
+/* 🚪 Logout */
+function logout() {
+  auth.signOut().then(() => {
+    window.location.href = "login.html";
   });
-  editId=null;
- }else{
-  push(ref(db,"agents"),{
-   name:name.value,desc:desc.value,image:image.value,
-   whatsapp:whatsapp.value,phone:phone.value
-  });
- }
- alert("Saved");
-};
+}
 
-onValue(ref(db,"agents"), snap=>{
- list.innerHTML="";
- snap.forEach(c=>{
-  const a=c.val();
-  list.innerHTML+=`
-   <div style="border:1px solid red;padding:10px;margin-bottom:10px">
-    <b>${a.name}</b><br>${a.desc}<br>
-    <button onclick="editAgent('${c.key}','${a.name}','${a.desc}','${a.image}','${a.whatsapp}','${a.phone}')">Edit</button>
-    <button onclick="del('${c.key}')">Delete</button>
-   </div>`;
- });
+/* ➕ Add / Update agent */
+function addAgent() {
+  const data = {
+    name: name.value,
+    desc: desc.value,
+    image: image.value,
+    whatsapp: whatsapp.value,
+    phone: phone.value
+  };
+
+  if (editId) {
+    db.ref("agents/" + editId).update(data);
+    editId = null;
+  } else {
+    db.ref("agents").push(data);
+  }
+
+  alert("Saved");
+}
+
+/* 📥 Load agents */
+db.ref("agents").on("value", snap => {
+  list.innerHTML = "";
+  snap.forEach(child => {
+    const a = child.val();
+    list.innerHTML += `
+      <div style="border:1px solid red;padding:10px;margin-bottom:10px">
+        <b>${a.name}</b><br>
+        ${a.desc}<br><br>
+        <button onclick="editAgent('${child.key}','${a.name}','${a.desc}','${a.image}','${a.whatsapp}','${a.phone}')">Edit</button>
+        <button onclick="delAgent('${child.key}')">Delete</button>
+      </div>
+    `;
+  });
 });
 
-window.editAgent=(id,n,d,i,w,p)=>{
- editId=id;
- name.value=n;desc.value=d;image.value=i;whatsapp.value=w;phone.value=p;
-};
+/* ✏️ Edit */
+function editAgent(id,n,d,i,w,p){
+  editId = id;
+  name.value = n;
+  desc.value = d;
+  image.value = i;
+  whatsapp.value = w;
+  phone.value = p;
+}
 
-window.del=id=>{
- if(confirm("Delete?")) remove(ref(db,"agents/"+id));
-};
+/* 🗑 Delete */
+function delAgent(id){
+  if(confirm("Delete this agent?")){
+    db.ref("agents/" + id).remove();
+  }
+}
 </script>
 
 </body>
