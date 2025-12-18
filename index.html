@@ -23,9 +23,11 @@ button{flex:1;padding:10px;border:none;border-radius:10px;background:#ff1a1a;col
 <div id="cards"></div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+<!-- Firebase compat (GitHub safe) -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
+<script>
 const firebaseConfig = {
   apiKey: "AIzaSyAJZ7e134Fnt3Cxe1aiDkFUg_Wv0ehpBA0",
   authDomain: "piyush-agency-b7949.firebaseapp.com",
@@ -33,33 +35,38 @@ const firebaseConfig = {
   projectId: "piyush-agency-b7949"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-function wa(n){window.open("https://wa.me/"+n,"_blank")}
-function call(n){location.href="tel:"+n}
+function wa(n){
+  window.open("https://wa.me/" + n, "_blank");
+}
+function call(n){
+  window.location.href = "tel:" + n;
+}
 
-const cards=document.getElementById("cards");
+const cards = document.getElementById("cards");
 
-onValue(ref(db,"agents"), snap=>{
- cards.innerHTML="";
- snap.forEach(c=>{
-  const a=c.val();
-  cards.innerHTML+=`
-  <div class="card">
-   <div class="card-top">
-    <div class="avatar" style="background-image:url('${a.image}')"></div>
-    <div>
-     <h2>${a.name}</h2>
-     <p>${a.desc}</p>
-    </div>
-   </div>
-   <div class="buttons">
-    <button onclick="wa('${a.whatsapp}')">WhatsApp</button>
-    <button onclick="call('${a.phone}')">Call</button>
-   </div>
-  </div>`;
- });
+db.ref("agents").on("value", function(snapshot){
+  cards.innerHTML = "";
+  snapshot.forEach(function(child){
+    const a = child.val();
+    cards.innerHTML += `
+      <div class="card">
+        <div class="card-top">
+          <div class="avatar" style="background-image:url('${a.image}')"></div>
+          <div>
+            <h2>${a.name}</h2>
+            <p>${a.desc}</p>
+          </div>
+        </div>
+        <div class="buttons">
+          <button onclick="wa('${a.whatsapp}')">WhatsApp</button>
+          <button onclick="call('${a.phone}')">Call</button>
+        </div>
+      </div>
+    `;
+  });
 });
 </script>
 
