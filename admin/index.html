@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Admin Login</title>
-<meta name="viewport" content="width=device-width">
+  <title>Admin Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
-<body style="background:#000;color:#fff;padding:20px">
+<body style="background:#000;color:#fff;padding:20px;font-family:Arial">
 
 <h2>Admin Login</h2>
 
@@ -13,22 +13,26 @@
 <input id="pass" type="password" placeholder="Password"><br><br>
 <button onclick="login()">Login</button>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+<!-- Firebase COMPAT (GitHub Pages SAFE) -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 
+<script>
 const firebaseConfig = {
   apiKey: "AIzaSyAJZ7e134Fnt3Cxe1aiDkFUg_Wv0ehpBA0",
   authDomain: "piyush-agency-b7949.firebaseapp.com"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 
-window.login=()=>{
- signInWithEmailAndPassword(auth,email.value,pass.value)
- .then(()=>location.href="dashboard.html")
- .catch(e=>alert(e.message));
+function login() {
+  auth.signInWithEmailAndPassword(email.value, pass.value)
+    .then(() => {
+      // ✅ CORRECT REDIRECT
+      window.location.href = "dashboard.html";
+    })
+    .catch(e => alert(e.message));
 }
 </script>
 
