@@ -21,7 +21,6 @@
 <hr>
 <div id="list"></div>
 
-<!-- Firebase COMPAT (GitHub Pages SAFE) -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -41,21 +40,18 @@ const auth = firebase.auth();
 
 let editId = null;
 
-/* 🔐 Protect dashboard */
 auth.onAuthStateChanged(user => {
   if (!user) {
-    window.location.href = "/tharki-gandhi-agency/admin/index.html";
+    window.location.href = "login.html";
   }
 });
 
-/* 🚪 Logout */
 function logout() {
   auth.signOut().then(() => {
     window.location.href = "login.html";
   });
 }
 
-/* ➕ Add / Update agent */
 function addAgent() {
   const data = {
     name: name.value,
@@ -75,7 +71,6 @@ function addAgent() {
   alert("Saved");
 }
 
-/* 📥 Load agents */
 db.ref("agents").on("value", snap => {
   list.innerHTML = "";
   snap.forEach(child => {
@@ -91,7 +86,6 @@ db.ref("agents").on("value", snap => {
   });
 });
 
-/* ✏️ Edit */
 function editAgent(id,n,d,i,w,p){
   editId = id;
   name.value = n;
@@ -101,7 +95,6 @@ function editAgent(id,n,d,i,w,p){
   phone.value = p;
 }
 
-/* 🗑 Delete */
 function delAgent(id){
   if(confirm("Delete this agent?")){
     db.ref("agents/" + id).remove();
